@@ -93,7 +93,7 @@ class Auth_Jelly extends Auth {
 				$token->create();
 
 				// Set the autologin Cookie
-				Cookie::set('authautologin', $token->token, $this->_config['lifetime']);
+				Cookie::encrypt('authautologin', $token->token, $this->_config['lifetime']);
 			}
 
 			// Finish the login
@@ -131,7 +131,7 @@ class Auth_Jelly extends Auth {
 	 */
 	public function auto_login()
 	{
-		if ($token = Cookie::get('authautologin'))
+		if ($token = Cookie::decrypt('authautologin'))
 		{
 			// Load the token and user
 			$token = Jelly::select('user_token')->where('token', '=', $token)->load();
@@ -144,7 +144,7 @@ class Auth_Jelly extends Auth {
 					$token->update();
 
 					// Set the new token
-					Cookie::set('authautologin', $token->token, $token->expires - time());
+					Cookie::encrypt('authautologin', $token->token, $token->expires - time());
 
 					// Complete the login with the found data
 					$this->complete_login($token->user);
@@ -170,7 +170,7 @@ class Auth_Jelly extends Auth {
 	 */
 	public function logout($destroy = FALSE, $logout_all = FALSE)
 	{
-		if ($token = Cookie::get('authautologin'))
+		if ($token = Cookie::decrypt('authautologin'))
 		{
 			// Delete the autologin Cookie to prevent re-login
 			Cookie::delete('authautologin');
